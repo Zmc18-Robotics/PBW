@@ -1,0 +1,73 @@
+-- =============================================
+-- Database: pemrograman_web_contoh - UPDATED with users table
+-- Jalankan file ini di phpMyAdmin > tab SQL (backup first!)
+-- =============================================
+
+CREATE DATABASE IF NOT EXISTS pemrograman_web_contoh CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE pemrograman_web_contoh;
+
+-- Tabel buku
+CREATE TABLE IF NOT EXISTS buku (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Judul VARCHAR(255) NOT NULL,
+    Penulis VARCHAR(255) NOT NULL,
+    Tahun_Terbit INT,
+    Harga DECIMAL(10,2),
+    Stok INT
+);
+
+-- Tabel pelanggan
+CREATE TABLE IF NOT EXISTS pelanggan (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Nama VARCHAR(255) NOT NULL,
+    Alamat VARCHAR(255),
+    Email VARCHAR(255),
+    Telepon VARCHAR(20)
+);
+
+-- Tabel pesanan
+CREATE TABLE IF NOT EXISTS pesanan (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Tanggal_Pesanan DATE,
+    Pelanggan_ID INT,
+    Total_Harga DECIMAL(10,2),
+    FOREIGN KEY (Pelanggan_ID) REFERENCES pelanggan(ID)
+);
+
+-- Tabel detail_pesanan
+CREATE TABLE IF NOT EXISTS detail_pesanan (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Pesanan_ID INT,
+    Buku_ID INT,
+    Kuantitas INT,
+    Harga_Per_Satuan DECIMAL(10,2),
+    FOREIGN KEY (Pesanan_ID) REFERENCES pesanan(ID),
+    FOREIGN KEY (Buku_ID) REFERENCES buku(ID)
+);
+
+-- NEW: Tabel users for authentication
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Data contoh buku (original)
+INSERT IGNORE INTO buku (Judul, Penulis, Tahun_Terbit, Harga, Stok) VALUES
+('Pemrograman PHP Dasar', 'Budi Raharjo', 2022, 75000, 50),
+('Belajar MySQL', 'Andi Sulistyo', 2021, 65000, 30),
+('HTML & CSS Modern', 'Rini Kartika', 2023, 85000, 20),
+('JavaScript untuk Pemula', 'Dono Santoso', 2022, 70000, 40);
+
+-- Data contoh pelanggan (original)
+INSERT IGNORE INTO pelanggan (Nama, Alamat, Email, Telepon) VALUES
+('Ahmad Fauzi', 'Jl. Mawar No. 10, Jakarta', 'ahmad@email.com', '081234567890'),
+('Siti Rahayu', 'Jl. Melati No. 5, Bandung', 'siti@email.com', '082345678901'),
+('Budi Santoso', 'Jl. Kenanga No. 3, Surabaya', 'budi@email.com', '083456789012');
+
+-- NEW: Demo admin user (username: admin, password: admin123 - hashed)
+INSERT IGNORE INTO users (username, password, role) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+-- Note: This is password_hash('password', PASSWORD_DEFAULT) for 'password'. CHANGE to your own!
